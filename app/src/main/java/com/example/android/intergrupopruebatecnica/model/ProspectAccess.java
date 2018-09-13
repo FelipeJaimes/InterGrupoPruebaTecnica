@@ -13,6 +13,9 @@ public interface ProspectAccess {
     @Insert
     void insertProspect(Prospect prospect);
 
+    @Query("SELECT count(*) FROM Prospect")
+    int countRows();
+
     @Query("SELECT * FROM Prospect WHERE prospectId = :prospectId")
     Prospect fetchOneProspectByProspectId(String prospectId);
 

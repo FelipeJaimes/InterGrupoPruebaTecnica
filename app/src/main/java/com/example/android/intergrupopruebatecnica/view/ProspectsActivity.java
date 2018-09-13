@@ -36,12 +36,31 @@ import retrofit2.Response;
 public class ProspectsActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final String DATABASE_NAME = "db";
     boolean loggedStatus;
+    private MyAppDatabase mDatabase;
+    private List<Prospect> prospects = new ArrayList<>();
+    ProspectsService prospectsService;
+
+    User user;
+    Prospect prospect;
+    String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prospects);
+
+        mDatabase = Room.databaseBuilder(getApplicationContext(), MyAppDatabase.class, DATABASE_NAME)
+                .fallbackToDestructiveMigration()
+                .build();
+
+        user = new User();
+        prospect = new Prospect();
+        prospectsService = new ProspectsService();
+
+        getTokenSubscription(user);
+        prospects = getProspects(prospectsService, token, prospects);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -109,6 +128,89 @@ public class ProspectsActivity extends BaseActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private List<Prospect> getProspects(ProspectsService prospectsService, String token, final List<Prospect> prospects) {
+        prospectsService.getProspects(token, new Callback<ProspectsResponse>() {
+            @Override
+            public void onResponse(Call<ProspectsResponse> call, Response<ProspectsResponse> response) {
+                if (response.body() == null) {
+                    Log.d("ERROR: ", "empty response");
+                } else {
+                    prospects.addAll(response.body().getProspects());
+                    addProspectsSubscription(prospects);
+                    addProspects(prospects);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProspectsResponse> call, Throwable t) {
+                Log.e("GET PROSPECTS: ", t.getMessage());
+            }
+        });
+
+        return prospects;
+
+    }
+
+    private Completable addProspects(final List<Prospect> prospects) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+
+                if (mDatabase.prospectAccess().countRows() > 0){
+                    for (int i = 0; i < prospects.size(); i++) {
+                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
+                        prospect.setName(prospects.get(i).getName());
+                        prospect.setSurname(prospects.get(i).getSurname());
+                        prospect.setTelephone(prospects.get(i).getTelephone());
+                        prospect.setStatusCd(prospects.get(i).getStatusCd());
+                        mDatabase.prospectAccess().updateProspect(prospect);
+                    }
+                } else {
+                    for (int i = 0; i < prospects.size(); i++) {
+                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
+                        prospect.setName(prospects.get(i).getName());
+                        prospect.setSurname(prospects.get(i).getSurname());
+                        prospect.setTelephone(prospects.get(i).getTelephone());
+                        prospect.setStatusCd(prospects.get(i).getStatusCd());
+                        mDatabase.prospectAccess().insertProspect(prospect);
+                    }
+                }
+
+                emitter.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io());
+    }
+
+    private void addProspectsSubscription(List<Prospect> prospects) {
+        try {
+            addSubscription(addProspects(prospects).subscribe());
+        } catch (Throwable exception) {
+            Log.e("DATABASE ERROR", exception.getMessage());
+        }
+    }
+
+    private Completable getToken(final User user) {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter emitter) throws Exception {
+
+                token = mDatabase.daoAccess().fetchFirstUserFromTable().getToken();
+
+                emitter.onComplete();
+            }
+        }).observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io());
+    }
+
+    private void getTokenSubscription(User user) {
+        try {
+            addSubscription(getToken(user).subscribe());
+        } catch (Throwable exception) {
+            Log.e("DATABASE ERROR", exception.getMessage());
+        }
     }
 
     private void savePreferences(boolean loggedStatus) {
