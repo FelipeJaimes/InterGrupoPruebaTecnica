@@ -29,11 +29,13 @@ import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
 
+    public static final String PREFS_NAME = "StatusPrefs";
     private static final String DATABASE_NAME = "db";
 
     EditText mEditTextMail;
     EditText mEditTextPassword;
     Button mButtonLogin;
+    Boolean loggedStatus;
 
     User user;
     String token;
@@ -45,6 +47,13 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        restorePreferences();
+
+        if (loggedStatus == true) {
+            Intent intent = new Intent(MainActivity.this, ProspectsActivity.class);
+            startActivity(intent);
+        }
 
         mDatabase = Room.databaseBuilder(getApplicationContext(), MyAppDatabase.class, DATABASE_NAME)
                 .fallbackToDestructiveMigration()
@@ -76,9 +85,15 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(getApplicationContext(), "Wrong mail or password", Toast.LENGTH_SHORT).show();
                 } else {
                     token = response.body().getAuthToken().toString();
+                    loggedStatus = true;
                     addSubscription(user);
                     Toast.makeText(getApplicationContext(), token, Toast.LENGTH_SHORT).show();
                     Log.e("TOKEN:", token);
+                    Log.e("STATUS:", loggedStatus.toString());
+
+                    Intent intent = new Intent(MainActivity.this, ProspectsActivity.class);
+                    intent.putExtra("loggedStatus", loggedStatus);
+                    startActivity(intent);
 
                 }
             }
@@ -121,8 +136,21 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    private void restorePreferences() {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        loggedStatus = settings.getBoolean("status", false);
+    }
+
+    private void savePreferences(boolean loggedStatus) {
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean("status", loggedStatus);
+        editor.apply();
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+        savePreferences(loggedStatus);
     }
 }
