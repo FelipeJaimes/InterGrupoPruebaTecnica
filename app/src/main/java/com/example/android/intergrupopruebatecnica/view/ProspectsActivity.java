@@ -1,5 +1,7 @@
 package com.example.android.intergrupopruebatecnica.view;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -33,8 +35,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProspectsActivity extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class ProspectsActivity extends BaseActivity {
 
     private static final String DATABASE_NAME = "db";
     boolean loggedStatus;
@@ -45,6 +46,9 @@ public class ProspectsActivity extends BaseActivity
     User user;
     Prospect prospect;
     String token;
+
+    DrawerLayout drawer;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,17 +66,23 @@ public class ProspectsActivity extends BaseActivity
         getTokenSubscription(user);
         prospects = getProspects(prospectsService, token, prospects);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+
+        if (navigationView != null) {
+            setupNavigationDrawerContent(navigationView);
+        }
+
+        setupNavigationDrawerContent(navigationView);
+        setFragment(0);
 
     }
 
@@ -108,26 +118,49 @@ public class ProspectsActivity extends BaseActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
+    private void setupNavigationDrawerContent(NavigationView navigationView) {
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        switch (menuItem.getItemId()) {
+                            case R.id.nav_prospects:
+                                menuItem.setChecked(true);
+                                setFragment(1);
+                                drawer.closeDrawer(GravityCompat.START);
+                                return true;
+                            case R.id.nav_logout:
+                                loggedStatus = false;
+                                savePreferences(loggedStatus);
+                                Intent intent = new Intent(ProspectsActivity.this, MainActivity.class);
+                                intent.putExtra("loggedStatus", loggedStatus);
+                                finish();
+                                return true;
+                        }
+                        return true;
+                    }
+                });
+    }
 
-        if (id == R.id.nav_prospects) {
-            // Handle the action
-        } else if (id == R.id.nav_logout) {
-            // Handle the action
-            loggedStatus = false;
-            savePreferences(loggedStatus);
-            Intent intent = new Intent(ProspectsActivity.this, MainActivity.class);
-            intent.putExtra("loggedStatus", loggedStatus);
-            startActivity(intent);
+    public void setFragment(int position) {
+        FragmentManager fragmentManager;
+        FragmentTransaction fragmentTransaction;
+        switch (position) {
+            case 0:
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                WelcomeFragment mWelcomeFragment = new WelcomeFragment();
+                fragmentTransaction.replace(R.id.fragment, mWelcomeFragment);
+                fragmentTransaction.commit();
+                break;
+            case 1:
+                fragmentManager = getFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                ProspectsListFragment mProspectsListFragment = new ProspectsListFragment();
+                fragmentTransaction.replace(R.id.fragment, mProspectsListFragment);
+                fragmentTransaction.commit();
+                break;
         }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     private List<Prospect> getProspects(ProspectsService prospectsService, String token, final List<Prospect> prospects) {

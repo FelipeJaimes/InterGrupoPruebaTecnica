@@ -86,6 +86,7 @@ public class MainActivity extends BaseActivity {
                 } else {
                     token = response.body().getAuthToken().toString();
                     loggedStatus = true;
+                    savePreferences(loggedStatus);
                     addSubscription(user);
                     Toast.makeText(getApplicationContext(), token, Toast.LENGTH_SHORT).show();
                     Log.e("TOKEN:", token);
@@ -151,6 +152,5 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        savePreferences(loggedStatus);
     }
 }
