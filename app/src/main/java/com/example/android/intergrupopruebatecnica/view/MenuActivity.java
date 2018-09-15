@@ -22,6 +22,8 @@ import com.example.android.intergrupopruebatecnica.model.User;
 import com.example.android.intergrupopruebatecnica.rest.response.ProspectsResponse;
 import com.example.android.intergrupopruebatecnica.rest.service.ProspectsService;
 import com.example.android.intergrupopruebatecnica.view.base.BaseActivity;
+import com.example.android.intergrupopruebatecnica.view.fragment.ProspectsFragment;
+import com.example.android.intergrupopruebatecnica.view.fragment.WelcomeFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,17 +37,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ProspectsActivity extends BaseActivity {
+public class MenuActivity extends BaseActivity {
 
-    private static final String DATABASE_NAME = "db";
+//    private static final String DATABASE_NAME = "db";
     boolean loggedStatus;
-    private MyAppDatabase mDatabase;
-    private List<Prospect> prospects = new ArrayList<>();
-    ProspectsService prospectsService;
-
-    User user;
-    Prospect prospect;
-    String token;
+//    private MyAppDatabase mDatabase;
+//    private List<Prospect> prospects = new ArrayList<>();
+//    ProspectsService prospectsService;
+//
+//    User user;
+//    Prospect prospect;
+//    String token;
 
     DrawerLayout drawer;
     Toolbar toolbar;
@@ -55,16 +57,16 @@ public class ProspectsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_prospects);
 
-        mDatabase = Room.databaseBuilder(getApplicationContext(), MyAppDatabase.class, DATABASE_NAME)
-                .fallbackToDestructiveMigration()
-                .build();
-
-        user = new User();
-        prospect = new Prospect();
-        prospectsService = new ProspectsService();
-
-        getTokenSubscription(user);
-        prospects = getProspects(prospectsService, token, prospects);
+//        mDatabase = Room.databaseBuilder(getApplicationContext(), MyAppDatabase.class, DATABASE_NAME)
+//                .fallbackToDestructiveMigration()
+//                .build();
+//
+//        user = new User();
+//        prospect = new Prospect();
+//        prospectsService = new ProspectsService();
+//
+//        getTokenSubscription(user);
+//        prospects = getProspects(prospectsService, token, prospects);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -132,7 +134,7 @@ public class ProspectsActivity extends BaseActivity {
                             case R.id.nav_logout:
                                 loggedStatus = false;
                                 savePreferences(loggedStatus);
-                                Intent intent = new Intent(ProspectsActivity.this, MainActivity.class);
+                                Intent intent = new Intent(MenuActivity.this, MainActivity.class);
                                 intent.putExtra("loggedStatus", loggedStatus);
                                 finish();
                                 return true;
@@ -156,95 +158,95 @@ public class ProspectsActivity extends BaseActivity {
             case 1:
                 fragmentManager = getFragmentManager();
                 fragmentTransaction = fragmentManager.beginTransaction();
-                ProspectsListFragment mProspectsListFragment = new ProspectsListFragment();
-                fragmentTransaction.replace(R.id.fragment, mProspectsListFragment);
+                ProspectsFragment mProspectsFragment = new ProspectsFragment();
+                fragmentTransaction.replace(R.id.fragment, mProspectsFragment);
                 fragmentTransaction.commit();
                 break;
         }
     }
 
-    private List<Prospect> getProspects(ProspectsService prospectsService, String token, final List<Prospect> prospects) {
-        prospectsService.getProspects(token, new Callback<ProspectsResponse>() {
-            @Override
-            public void onResponse(Call<ProspectsResponse> call, Response<ProspectsResponse> response) {
-                if (response.body() == null) {
-                    Log.d("ERROR: ", "empty response");
-                } else {
-                    prospects.addAll(response.body().getProspects());
-                    addProspectsSubscription(prospects);
-                    addProspects(prospects);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ProspectsResponse> call, Throwable t) {
-                Log.e("GET PROSPECTS: ", t.getMessage());
-            }
-        });
-
-        return prospects;
-
-    }
-
-    private Completable addProspects(final List<Prospect> prospects) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-
-                if (mDatabase.prospectAccess().countRows() > 0){
-                    for (int i = 0; i < prospects.size(); i++) {
-                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
-                        prospect.setName(prospects.get(i).getName());
-                        prospect.setSurname(prospects.get(i).getSurname());
-                        prospect.setTelephone(prospects.get(i).getTelephone());
-                        prospect.setStatusCd(prospects.get(i).getStatusCd());
-                        mDatabase.prospectAccess().updateProspect(prospect);
-                    }
-                } else {
-                    for (int i = 0; i < prospects.size(); i++) {
-                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
-                        prospect.setName(prospects.get(i).getName());
-                        prospect.setSurname(prospects.get(i).getSurname());
-                        prospect.setTelephone(prospects.get(i).getTelephone());
-                        prospect.setStatusCd(prospects.get(i).getStatusCd());
-                        mDatabase.prospectAccess().insertProspect(prospect);
-                    }
-                }
-
-                emitter.onComplete();
-            }
-        }).observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io());
-    }
-
-    private void addProspectsSubscription(List<Prospect> prospects) {
-        try {
-            addSubscription(addProspects(prospects).subscribe());
-        } catch (Throwable exception) {
-            Log.e("DATABASE ERROR", exception.getMessage());
-        }
-    }
-
-    private Completable getToken(final User user) {
-        return Completable.create(new CompletableOnSubscribe() {
-            @Override
-            public void subscribe(CompletableEmitter emitter) throws Exception {
-
-                token = mDatabase.daoAccess().fetchFirstUserFromTable().getToken();
-
-                emitter.onComplete();
-            }
-        }).observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io());
-    }
-
-    private void getTokenSubscription(User user) {
-        try {
-            addSubscription(getToken(user).subscribe());
-        } catch (Throwable exception) {
-            Log.e("DATABASE ERROR", exception.getMessage());
-        }
-    }
+//    private List<Prospect> getProspects(ProspectsService prospectsService, String token, final List<Prospect> prospects) {
+//        prospectsService.getProspects(token, new Callback<ProspectsResponse>() {
+//            @Override
+//            public void onResponse(Call<ProspectsResponse> call, Response<ProspectsResponse> response) {
+//                if (response.body() == null) {
+//                    Log.d("ERROR: ", "empty response");
+//                } else {
+//                    prospects.addAll(response.body().getProspects());
+//                    addProspectsSubscription(prospects);
+//                    addProspects(prospects);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<ProspectsResponse> call, Throwable t) {
+//                Log.e("GET PROSPECTS: ", t.getMessage());
+//            }
+//        });
+//
+//        return prospects;
+//
+//    }
+//
+//    private Completable addProspects(final List<Prospect> prospects) {
+//        return Completable.create(new CompletableOnSubscribe() {
+//            @Override
+//            public void subscribe(CompletableEmitter emitter) throws Exception {
+//
+//                if (mDatabase.prospectAccess().countRows() > 0){
+//                    for (int i = 0; i < prospects.size(); i++) {
+//                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
+//                        prospect.setName(prospects.get(i).getName());
+//                        prospect.setSurname(prospects.get(i).getSurname());
+//                        prospect.setTelephone(prospects.get(i).getTelephone());
+//                        prospect.setStatusCd(prospects.get(i).getStatusCd());
+//                        mDatabase.prospectAccess().updateProspect(prospect);
+//                    }
+//                } else {
+//                    for (int i = 0; i < prospects.size(); i++) {
+//                        prospect.setProspectId(String.valueOf(prospects.get(i).getId()));
+//                        prospect.setName(prospects.get(i).getName());
+//                        prospect.setSurname(prospects.get(i).getSurname());
+//                        prospect.setTelephone(prospects.get(i).getTelephone());
+//                        prospect.setStatusCd(prospects.get(i).getStatusCd());
+//                        mDatabase.prospectAccess().insertProspect(prospect);
+//                    }
+//                }
+//
+//                emitter.onComplete();
+//            }
+//        }).observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io());
+//    }
+//
+//    private void addProspectsSubscription(List<Prospect> prospects) {
+//        try {
+//            addSubscription(addProspects(prospects).subscribe());
+//        } catch (Throwable exception) {
+//            Log.e("DATABASE ERROR", exception.getMessage());
+//        }
+//    }
+//
+//    private Completable getToken(final User user) {
+//        return Completable.create(new CompletableOnSubscribe() {
+//            @Override
+//            public void subscribe(CompletableEmitter emitter) throws Exception {
+//
+//                token = mDatabase.daoAccess().fetchFirstUserFromTable().getToken();
+//
+//                emitter.onComplete();
+//            }
+//        }).observeOn(AndroidSchedulers.mainThread())
+//                .subscribeOn(Schedulers.io());
+//    }
+//
+//    private void getTokenSubscription(User user) {
+//        try {
+//            addSubscription(getToken(user).subscribe());
+//        } catch (Throwable exception) {
+//            Log.e("DATABASE ERROR", exception.getMessage());
+//        }
+//    }
 
     private void savePreferences(boolean loggedStatus) {
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);

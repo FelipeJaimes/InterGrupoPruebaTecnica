@@ -16,8 +16,8 @@ public interface ProspectAccess {
     @Query("SELECT count(*) FROM Prospect")
     int countRows();
 
-    @Query("SELECT * FROM Prospect WHERE prospectId = :prospectId")
-    Prospect fetchOneProspectByProspectId(String prospectId);
+    @Query("SELECT * FROM Prospect WHERE id = :id")
+    Prospect fetchOneProspectByProspectId(int id);
 
     @Update
     void updateProspect(Prospect prospect);

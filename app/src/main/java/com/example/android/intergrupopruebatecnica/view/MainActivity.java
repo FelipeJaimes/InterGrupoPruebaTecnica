@@ -3,7 +3,6 @@ package com.example.android.intergrupopruebatecnica.view;
 import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -51,7 +50,7 @@ public class MainActivity extends BaseActivity {
         restorePreferences();
 
         if (loggedStatus == true) {
-            Intent intent = new Intent(MainActivity.this, ProspectsActivity.class);
+            Intent intent = new Intent(MainActivity.this, MenuActivity.class);
             startActivity(intent);
         }
 
@@ -92,7 +91,7 @@ public class MainActivity extends BaseActivity {
                     Log.e("TOKEN:", token);
                     Log.e("STATUS:", loggedStatus.toString());
 
-                    Intent intent = new Intent(MainActivity.this, ProspectsActivity.class);
+                    Intent intent = new Intent(MainActivity.this, MenuActivity.class);
                     intent.putExtra("loggedStatus", loggedStatus);
                     startActivity(intent);
 
