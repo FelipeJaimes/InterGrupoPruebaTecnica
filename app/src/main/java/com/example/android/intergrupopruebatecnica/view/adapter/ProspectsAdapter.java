@@ -8,76 +8,71 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.example.android.intergrupopruebatecnica.R;
-import com.example.android.intergrupopruebatecnica.model.Prospect;
+import com.example.android.intergrupopruebatecnica.data.local.entity.Prospect;
 import com.example.android.intergrupopruebatecnica.view.listener.ItemClickListener;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class ProspectsAdapter extends RecyclerView.Adapter<ProspectsAdapter.ProspectViewHolder> {
 
-    private List<Prospect> mProspects;
-    private ItemClickListener mItemClickListener;
+    private List<Prospect> prospectList = new ArrayList<>();
+    private ItemClickListener clickListener;
 
-    public ProspectsAdapter(List<Prospect> items) {
-        mProspects = items;
+    public void addAll(List<Prospect> items) {
+        prospectList.addAll(items);
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public ProspectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.prospect_list_item, parent, false);
+        final View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_prospect, parent, false);
         return new ProspectViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ProspectViewHolder holder, int position) {
-        holder.prospectIdTextView.setText("ProspectId: "+ mProspects.get(position).getProspectId());
-        holder.nameTextView.setText("Name: "+ mProspects.get(position).getName());
-        holder.surnameTextView.setText("Surname: "+ mProspects.get(position).getSurname());
-        holder.phoneTextView.setText("Phone: "+ mProspects.get(position).getTelephone());
-        holder.statusTextView.setText("Status: "+ mProspects.get(position).getStatusCd().toString());
+        holder.prospectIdTextView.setText(prospectList.get(position).getSid());
+        holder.nameTextView.setText(prospectList.get(position).getName());
+        holder.surnameTextView.setText(prospectList.get(position).getSurname());
+        holder.phoneTextView.setText(prospectList.get(position).getTelephone());
+        //holder.statusTextView.setText("Status: "+ prospectList.get(position).getStatusCd().toString());
     }
 
     @Override
     public int getItemCount() {
-        return mProspects.size();
+        return prospectList.size();
     }
 
     public class ProspectViewHolder extends RecyclerView.ViewHolder {
 
-        TextView prospectIdTextView;
-        TextView nameTextView;
-        TextView surnameTextView;
-        TextView phoneTextView;
-        TextView statusTextView;
+        @BindView(R.id.item_prospect_id) TextView prospectIdTextView;
+        @BindView(R.id.item_prospect_name) TextView nameTextView;
+        @BindView(R.id.item_prospect_surname) TextView surnameTextView;
+        @BindView(R.id.item_prospect_phone) TextView phoneTextView;
+       //@BindView(R.id.item_prospect_status)TextView statusTextView;
 
         public ProspectViewHolder(View itemView) {
             super(itemView);
-            initUI(itemView);
+            ButterKnife.bind(this, itemView);
             setViewHolderListener(this, itemView);
         }
 
-        private void initUI(View view) {
-            prospectIdTextView = view.findViewById(R.id.prospectId_TextView);
-            nameTextView = view.findViewById(R.id.name_TextView);
-            surnameTextView = view.findViewById(R.id.surname_TextView);
-            phoneTextView = view.findViewById(R.id.phone_TextView);
-            statusTextView = view.findViewById(R.id.status_TextView);
-        }
     }
 
     private void setViewHolderListener(final RecyclerView.ViewHolder viewHolder, View itemView) {
-        if (mItemClickListener != null)
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mItemClickListener.onItemClick(view, viewHolder.getAdapterPosition(), mProspects.get(viewHolder.getAdapterPosition()));
-                }
-            });
+        if (clickListener != null)
+            itemView.setOnClickListener(view -> clickListener
+                    .onItemClick(view, viewHolder.getAdapterPosition(),
+                            prospectList.get(viewHolder.getAdapterPosition())));
     }
 
     public void setOnItemClickListener(ItemClickListener listener) {
-        this.mItemClickListener = listener;
+        this.clickListener = listener;
     }
 
 }

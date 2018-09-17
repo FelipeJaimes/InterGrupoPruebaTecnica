@@ -1,16 +1,26 @@
 package com.example.android.intergrupopruebatecnica.view.fragment;
 
-import android.app.Fragment;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.example.android.intergrupopruebatecnica.R;
+import com.example.android.intergrupopruebatecnica.presenter.WelcomePresenter;
+import com.example.android.intergrupopruebatecnica.view.base.BaseFragment;
+import com.example.android.intergrupopruebatecnica.view.contract.WelcomeView;
 
-public class WelcomeFragment extends Fragment {
 
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.welcome_fragment, container, false);
+public class WelcomeFragment extends BaseFragment<WelcomePresenter> implements WelcomeView {
+
+    @Override
+    public WelcomePresenter createPresenter() {
+        return new WelcomePresenter(this);
+    }
+
+    @Override
+    public int getLayout() {
+        return R.layout.fragment_welcome;
+    }
+
+    @Override
+    public void initViews() {
+
     }
 }
