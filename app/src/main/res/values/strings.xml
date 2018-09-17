@@ -2,4 +2,37 @@
     <string name="app_name">InterGrupoPruebaTecnica</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="login_password_header_title">Password:</string>
+    <string name="login_mail_header_title">Mail:</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_button_text">Log in</string>
+
+    <string name="edit_id_text">Id: </string>
+    <string name="edit_id_hint">Id </string>
+    <string name="edit_name_text">Name: </string>
+    <string name="edit_name_hint">Name </string>
+    <string name="edit_surname_text">Surname: </string>
+    <string name="edit_surname_hint">Surname </string>
+    <string name="edit_telephone_text">Telephone: </string>
+    <string name="edit_telephone_hint">Telephone </string>
+
+    <string name="status_pending">Pending</string>
+    <string name="status_approved">Approved</string>
+    <string name="status_accepted">Accepted</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_disabled">Disabled</string>
+
+    <string name="delete_dialog_msg">Delete this prospect?</string>
+
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="unsaved_changes_dialog_msg">Discard your changes and quit editing?</string>
+    <string name="discard">Discard</string>
+    <string name="keep_editing">Keep Editing</string>
+
+    <string name="action_save">Save</string>
+    <string name="action_delete">Delete</string>
+
 </resources>
