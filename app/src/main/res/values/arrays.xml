@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="array_status_options">
+        <item>@string/status_pending</item>
+        <item>@string/status_approved</item>
+        <item>@string/status_accepted</item>
+        <item>@string/status_rejected</item>
+        <item>@string/status_disabled</item>
+    </string-array>
+</resources>
